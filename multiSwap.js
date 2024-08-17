@@ -5,7 +5,7 @@ async function main() {
   const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
   const web3 = createAlchemyWeb3(ETH_NODE_URL);
   const ABI = require("./ABIs/1inch.json");
-  const instaAccountAddress = "0x04ca0B06Eac6178Fe5962B928d669e4686e72463";
+  const LSAAddress = "0x04ca0B06Eac6178Fe5962B928d669e4686e72463";
   const connector = new web3.eth.Contract(
     ABI,
     "0x34b04687269e47E50BB999231393D58F9cb9E9Ae"
@@ -60,7 +60,7 @@ async function main() {
       src: sellToken1,
       dst: buyToken1,
       amount: sellAmount1,
-      from: instaAccountAddress,
+      from: LSAAddress,
       slippage: slippage1,
       disableEstimate: true,
     },
@@ -96,7 +96,7 @@ async function main() {
       src: sellToken2,
       dst: buyToken2,
       amount: sellAmount2,
-      from: instaAccountAddress,
+      from: LSAAddress,
       slippage: slippage2,
       disableEstimate: true,
     },
@@ -132,7 +132,7 @@ async function main() {
       src: sellToken3,
       dst: buyToken3,
       amount: sellAmount3,
-      from: instaAccountAddress,
+      from: LSAAddress,
       slippage: slippage3,
       disableEstimate: true,
     },
@@ -169,7 +169,7 @@ async function main() {
   console.log("estimating gas");
   const estimatedGas2 = await web3.eth.estimateGas({
     from: "0x3103Cac5ad1fC41aF7e00E0d42665d9a690574d8",
-    to: instaAccountAddress,
+    to: LSAAddress,
     data: encodedData,
     value: 0,
   });
@@ -179,7 +179,7 @@ async function main() {
 
   const transaction2 = {
     from: "0x3103Cac5ad1fC41aF7e00E0d42665d9a690574d8",
-    to: instaAccountAddress,
+    to: LSAAddress,
     data: encodedData,
     value: 0, // or any ETH amount if required
     gas: gasLimit,

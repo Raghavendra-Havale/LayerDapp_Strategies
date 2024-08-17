@@ -57,7 +57,7 @@ async function main() {
   const leverageToken = "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9";
   //   const token = "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9";
   //   const amt = "1000";
-  const amt = web3.utils.toWei("0.000001", "ether");
+  const amt = web3.utils.toWei("0.00000001", "ether");
   const flashLoanFee = 0.05;
   const payBackAmt = new BigNumber(amt)
     .times(100 + flashLoanFee)

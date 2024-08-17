@@ -4,8 +4,6 @@ async function main() {
   const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
   const web3 = createAlchemyWeb3(ETH_NODE_URL);
   const aaveABI = require("./ABIs/aave.json");
-  const oneInchABI = require("./ABIs/1inch.json");
-  const axios = require("axios");
 
   const LSAAddress = "0x04ca0B06Eac6178Fe5962B928d669e4686e72463";
   const aaveConnector = new web3.eth.Contract(
@@ -13,68 +11,21 @@ async function main() {
     "0x7BfF285c9Dc5CCD96177E481BEde4D3B9361D2f7"
   );
 
-  const oneInchconnector = new web3.eth.Contract(
-    oneInchABI,
-    "0x34b04687269e47E50BB999231393D58F9cb9E9Ae"
-  );
+  const flashBorrowToken = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
+  const leverageToken = "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9";
 
-  const daiToken = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
-  const wethToken = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
+  const amt = web3.utils.toWei("0.00000001", "ether");
+  const amt1 = "66";
 
-  const amt1 = "4000";
-  const amt2 = "1000";
-
-  const borrowDebt = aaveConnector.methods
-    .borrow(daiToken, amt1, 2, 0, 0)
+  const encodedFunctionCall1 = aaveConnector.methods
+    .payback(flashBorrowToken, amt, 2, 0, 0)
     .encodeABI();
-  console.log("borrowDebt", borrowDebt);
+  console.log("encode", encodedFunctionCall1);
 
-  const buyToken = wethToken;
-  const sellToken = daiToken;
-  const slippage = "2"; // 1% slippage
-  const sellAmount = amt1;
-
-  //Getting swap data from API
-  let response;
-  const url = "https://api.1inch.dev/swap/v5.2/42161/swap";
-  const config = {
-    headers: {
-      Authorization: "Bearer jxC0kSICRLVAqxhLD32hTEfjcheEr6Za",
-    },
-    params: {
-      src: sellToken,
-      dst: buyToken,
-      amount: sellAmount,
-      from: LSAAddress,
-      slippage: slippage,
-      disableEstimate: true,
-    },
-  };
-
-  try {
-    response = await axios.get(url, config);
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-
-  const oneInchSwap = oneInchconnector.methods
-    .sell(
-      buyToken,
-      sellToken,
-      sellAmount,
-      response.data.toAmount,
-      response.data.tx.data,
-      0
-    )
+  const encodedFunctionCall2 = aaveConnector.methods
+    .withdraw(leverageToken, amt1, 0, 0)
     .encodeABI();
-  console.log("encode oneInchSwap:", oneInchSwap);
-  console.log("response.data.toAmount", response.data.toAmount);
-
-  const paybackDebt = aaveConnector.methods
-    .payback(wethToken, response.data.toAmount, 2, 0, 0)
-    .encodeABI();
-  console.log("paybackDebt", paybackDebt);
+  console.log("encode", encodedFunctionCall2);
 
   const functionAbi = {
     constant: false,
@@ -100,8 +51,8 @@ async function main() {
   };
 
   const encodedData = web3.eth.abi.encodeFunctionCall(functionAbi, [
-    ["LayerAaveV3Arbitrum", "LayerConnectOneInchV5", "LayerAaveV3Arbitrum"],
-    [borrowDebt, oneInchSwap, paybackDebt],
+    ["LayerAaveV3Arbitrum", "LayerAaveV3Arbitrum"],
+    [encodedFunctionCall1, encodedFunctionCall2],
     "0x3103Cac5ad1fC41aF7e00E0d42665d9a690574d8",
   ]);
 
